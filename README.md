@@ -20,9 +20,25 @@ Finally, we subscribe to the observable.
 
 ### Error handling
 
-There a commented out if-statement that checks the count. If you look at the browser console, you'll see the error get thrown. And then observable stops. This is an important behavior. We can also see how the error is handled. This is outline in the code where we subscribe to the observable.
+There a commented out if-statement that checks the count. If you look at the browser console, you'll see the error get thrown. And then observable stops. This is an important behavior. We can also see how the error is handled. This is outline in the code where we subscribe to the observable. At this point, the observable is 'cancelled' and we do NOT need to unsubscribe.
 
 ### Completion handling
 
 There is also a function after the error handling function, and this is called when the observable is completed. Notice that it receives no arugments... this is because a completion doesn't pass any.
 Once our observable is complete, unsubscribing is unnecessary (though it's okay/safer to do it).
+
+### Operators
+Observers get data from observables via a subscription. But sometimes we might want NOT want the raw data. Maybe we want to transform it somehow. We can use built-in operators between the observable and the subscription. We can use piping for that...
+
+```javascript
+this.intervalSub = customIntervalObservable.pipe( map( (data: number) => {
+      return data - 2;        
+    }))
+```
+
+Here, we see the piping is performed in our subscription definition. We are just decrementing 'data' by 2, so the print statements reflect that (though the actual count still is governing our completion condition). Pipe takes an operator (we used 'map'), and it has no limit on how many it takes. There are many rxjs operators you can use, see the documentation.
+
+### Subjects
+These are the preferred replacement for event emitting in most cases. Here, we use subject to pass data between components through services. Our user component has a button that calls onActivate. This triggers a change in the userService's Subject object called 'activatedEmitter'. You can see we are calling 'next' (just like observables).
+
+In the app component, there is already a subscription to the userService's subject. When a change happens, then the app component KNOWS the user component's 'activated' button was pressed. As always, we unsubscribe in OnDestroy.
